@@ -1,0 +1,43 @@
+---
+
+- name: Tagged volume ensure EBS volume not mounted on instance
+  ec2_vol_facts:
+    filters: "{{
+      persistent_volumes.aws.tagged_volume_lookup_filters | combine( {
+        'attachment.instance-id': ansible_ec2_instance_id,
+        'availability-zone': ansible_ec2_placement_availability_zone,
+        'status': 'in-use'
+      } )
+    }}"
+    region: "{{ ansible_ec2_placement_region }}"
+  register: tagged_volume_mount_facts
+  until: tagged_volume_mount_facts is succeeded
+  retries: "{{ aws.default_retries }}"
+  delay: "{{ aws.default_delay }}"
+
+- name: Tagged volume lookup available EBS volume
+  ec2_vol_facts:
+    filters: "{{
+      persistent_volumes.aws.tagged_volume_lookup_filters | combine( {
+        'availability-zone': ansible_ec2_placement_availability_zone,
+        'status': 'available'
+      } )
+    }}"
+    region: "{{ ansible_ec2_placement_region }}"
+  register: tagged_volume_facts
+  when: tagged_volume_mount_facts.volumes[0] is not defined
+  until: tagged_volume_facts.volumes[0].id is defined
+  retries: 6
+  delay: "{{ aws.default_delay }}"
+
+- name: Tagged volume connect available EBS volume
+  ec2_vol:
+    id: "{{ tagged_volume_facts.volumes[0].id }}"
+    instance: "{{ ansible_ec2_instance_id }}"
+    device_name: "{{ persistent_volumes.device }}"
+    region: "{{ ansible_ec2_placement_region }}"
+  when: tagged_volume_mount_facts.volumes[0] is not defined
+  register: tagged_volume_connect
+  until: tagged_volume_connect is succeeded
+  retries: "{{ aws.default_retries }}"
+  delay: "{{ aws.default_delay }}"

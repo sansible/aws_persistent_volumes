@@ -1,0 +1,20 @@
+---
+
+sansible_persistent_volumes_ensure_directories: []
+
+sansible_persistent_volumes_device:
+  path: /dev/xvdb
+  fs_type: ext4
+  group: root
+  label: auxiliary
+  mode: "0755"
+  owner: root
+  mount: /mnt
+
+sansible_persistent_volumes_aws:
+  assigned_volume_instance_tag: ~
+  tagged_volume_lookup_filters: {}
+
+sansible_persistent_volumes_task:
+  retries: 2
+  delay: 3

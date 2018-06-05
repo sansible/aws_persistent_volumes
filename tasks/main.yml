@@ -1,0 +1,11 @@
+---
+
+- name: Install dependencies
+  include: install.yml
+  tags:
+    - build
+
+- name: Carry out EBS tasks in an EC2 environment
+  include: configure.yml
+  tags:
+    - configure

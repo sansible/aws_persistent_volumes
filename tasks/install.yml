@@ -1,0 +1,11 @@
+---
+
+- name: Ensure apt essential packages
+  become: yes
+  apt:
+    name: python-pip
+
+- name: Ensure essential pip packages
+  become: yes
+  pip:
+    name: boto

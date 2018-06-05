@@ -1,0 +1,68 @@
+---
+
+- name: EC2 fact hunt
+  action: ec2_facts
+  register: ec2_vars
+  until: ec2_vars is succeeded
+  retries: "{{ sansible_persistent_volumes_task.retries }}"
+  delay: "{{ sansible_persistent_volumes_task.delay }}"
+
+- name: AWS setup assigned volume
+  include: configure/assigned_volume.yml
+  when:
+    - ansible_ec2_instance_id is defined
+    - sansible_persistent_volumes_aws.assigned_volume_instance_tag is not none
+
+- name: AWS setup tagged volume
+  include: configure/tagged_volume.yml
+  when:
+    - ansible_ec2_instance_id is defined
+    - sansible_persistent_volumes_aws.assigned_volume_instance_tag is none
+
+- name: Set the auxiliary device name for Vagrant
+  set_fact:
+    persistent_volumes:
+      device: /dev/sdb
+  when: development_environment | default(false) == true
+
+- name: Check if there is a labelled filesystem
+  command: "blkid -L {{ sansible_persistent_volumes_device.label }}"
+  ignore_errors: true
+  register: fs_device
+  tags:
+    - skip_ansible_lint
+
+- name: Format the auxiliary filesystem
+  become: yes
+  filesystem:
+    fstype: "{{ sansible_persistent_volumes_device.fs_type }}"
+    dev: "{{ sansible_persistent_volumes_device.path }}"
+    opts: "-L {{ sansible_persistent_volumes_device.label }}"
+  when: fs_device is failed
+
+- name: Ensure the auxiliary filesystem is mounted and mounts at boot
+  become: yes
+  mount:
+    name: "{{ sansible_persistent_volumes_device.mount }}"
+    src: "LABEL={{ sansible_persistent_volumes_device.label }}"
+    fstype: "{{ sansible_persistent_volumes_device.fs_type }}"
+    opts: nofail
+    state: mounted
+
+- name: Ensure some directories exist
+  become: yes
+  file:
+    group: "{{ sansible_persistent_volumes_device.group }}"
+    owner: "{{ sansible_persistent_volumes_device.owner }}"
+    name: "{{ item }}"
+    state: directory
+  with_items: "{{ sansible_persistent_volumes_ensure_directories }}"
+
+- name: Set owner of auxillary filesystem
+  become: yes
+  file:
+    group: "{{ sansible_persistent_volumes_device.group }}"
+    mode: "{{ sansible_persistent_volumes_device.mode }}"
+    owner: "{{ sansible_persistent_volumes_device.owner }}"
+    path: "{{ sansible_persistent_volumes_device.mount }}"
+    state: touch
