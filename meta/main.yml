@@ -1,0 +1,20 @@
+---
+
+galaxy_info:
+  author:
+    - David Reed
+    - Dennis Conrad
+    - Hagen Kuehn
+    - Wojtek Oledzki
+  description: Connect and mount EBS volumes
+  license: MIT
+  min_ansible_version: 2.3.3
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+        - xenial
+  categories:
+    - aws
+
+dependencies: []

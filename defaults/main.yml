@@ -1,20 +1,33 @@
 ---
 
+# List of directories that will be created if they do not exist on the device
 sansible_persistent_volumes_ensure_directories: []
 
 sansible_persistent_volumes_device:
+  # The linux device path where the block device is expected to appear.
   path: /dev/xvdb
+  # Filesystem type.
   fs_type: ext4
+  # The group id that should be applied on the mount point.
   group: root
+  # The filesystem label that should be applied on the ext4 filesystem. This is largely used for internal purposes
+  # in the role.
   label: auxiliary
+  # The octal permission mode applied to the mount point.
   mode: "0755"
+  # The owner id that should be applied on the mount point.
   owner: root
+  # The system path where the filesystem should be mounted. It creates the path, if not present.
   mount: /mnt
 
 sansible_persistent_volumes_aws:
+  # Name instance tag from which to grab the EBS volume ID.
   assigned_volume_instance_tag: ~
+  # Tags to use to lookup volumes.
   tagged_volume_lookup_filters: {}
 
 sansible_persistent_volumes_task:
+  # Number of retries for some operations
   retries: 2
+  # Delay in seconds beteween retries
   delay: 3
