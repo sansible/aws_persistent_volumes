@@ -22,7 +22,7 @@ sansible_persistent_volumes_device:
 
 sansible_persistent_volumes_aws:
   # Name instance tag from which to grab the EBS volume ID.
-  assigned_volume_instance_tag: ~
+  assigned_volume_instance_tag: instancevolumeid
   # Tags to use to lookup volumes.
   tagged_volume_lookup_filters: {}
 

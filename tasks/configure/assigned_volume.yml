@@ -26,12 +26,12 @@
 
 - name: Assigned volume connect available EBS volume
   ec2_vol:
-    device_name: "{{ sansible_persistent_volumes_device.device }}"
+    device_name: "{{ sansible_persistent_volumes_device.path }}"
     id: "{{ assigned_volume_ec2_instance_tags.tags[sansible_persistent_volumes_aws.assigned_volume_instance_tag] }}"
     instance: "{{ ansible_ec2_instance_id }}"
     region: "{{ ansible_ec2_placement_region }}"
   when: assigned_volume_mount_facts.volumes[0] is not defined
   register: assigned_volume_connect
   until: assigned_volume_connect is succeeded
-  retries: 6
+  retries: "{{ sansible_persistent_volumes_task.retries }}"
   delay: "{{ sansible_persistent_volumes_task.delay }}"

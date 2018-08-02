@@ -12,8 +12,8 @@
     region: "{{ ansible_ec2_placement_region }}"
   register: tagged_volume_mount_facts
   until: tagged_volume_mount_facts is succeeded
-  retries: "{{ aws.default_retries }}"
-  delay: "{{ aws.default_delay }}"
+  retries: "{{ sansible_persistent_volumes_task.retries }}"
+  delay: "{{ sansible_persistent_volumes_task.delay }}"
 
 - name: Tagged volume lookup available EBS volume
   ec2_vol_facts:
@@ -27,8 +27,8 @@
   register: tagged_volume_facts
   when: tagged_volume_mount_facts.volumes[0] is not defined
   until: tagged_volume_facts.volumes[0].id is defined
-  retries: 6
-  delay: "{{ aws.default_delay }}"
+  retries: "{{ sansible_persistent_volumes_task.retries }}"
+  delay: "{{ sansible_persistent_volumes_task.delay }}"
 
 - name: Tagged volume connect available EBS volume
   ec2_vol:
@@ -39,5 +39,5 @@
   when: tagged_volume_mount_facts.volumes[0] is not defined
   register: tagged_volume_connect
   until: tagged_volume_connect is succeeded
-  retries: "{{ aws.default_retries }}"
-  delay: "{{ aws.default_delay }}"
+  retries: "{{ sansible_persistent_volumes_task.retries }}"
+  delay: "{{ sansible_persistent_volumes_task.delay }}"
