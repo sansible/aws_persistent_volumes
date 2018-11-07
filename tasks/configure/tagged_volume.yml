@@ -3,7 +3,7 @@
 - name: Tagged volume ensure EBS volume not mounted on instance
   ec2_vol_facts:
     filters: "{{
-      persistent_volumes.aws.tagged_volume_lookup_filters | combine( {
+      sansible_persistent_volumes_aws.tagged_volume_lookup_filters | combine( {
         'attachment.instance-id': ansible_ec2_instance_id,
         'availability-zone': ansible_ec2_placement_availability_zone,
         'status': 'in-use'
@@ -18,7 +18,7 @@
 - name: Tagged volume lookup available EBS volume
   ec2_vol_facts:
     filters: "{{
-      persistent_volumes.aws.tagged_volume_lookup_filters | combine( {
+      sansible_persistent_volumes_aws.tagged_volume_lookup_filters | combine( {
         'availability-zone': ansible_ec2_placement_availability_zone,
         'status': 'available'
       } )
@@ -34,7 +34,7 @@
   ec2_vol:
     id: "{{ tagged_volume_facts.volumes[0].id }}"
     instance: "{{ ansible_ec2_instance_id }}"
-    device_name: "{{ persistent_volumes.device }}"
+    device_name: "{{ sansible_persistent_volumes_device.path }}"
     region: "{{ ansible_ec2_placement_region }}"
   when: tagged_volume_mount_facts.volumes[0] is not defined
   register: tagged_volume_connect

@@ -10,14 +10,16 @@
   delay: "{{ sansible_persistent_volumes_task.delay }}"
   until:
     - assigned_volume_ec2_instance_tags is succeeded
-    - sansible_persistent_volumes_aws.assigned_volume_instance_tag in assigned_volume_ec2_instance_tags.tags
+    - sansible_persistent_volumes_aws.assigned_volume_instance_tag
+      in assigned_volume_ec2_instance_tags.tags
 
 - name: Assigned volume ensure EBS volume not mounted on instance
   ec2_vol_facts:
     filters:
       attachment.instance-id: "{{ ansible_ec2_instance_id }}"
       status: in-use
-      volume-id: "{{ assigned_volume_ec2_instance_tags.tags[sansible_persistent_volumes_aws.assigned_volume_instance_tag] }}"
+      volume-id: "{{ assigned_volume_ec2_instance_tags.tags[
+        sansible_persistent_volumes_aws.assigned_volume_instance_tag] }}"
     region: "{{ ansible_ec2_placement_region }}"
   register: assigned_volume_mount_facts
   until: assigned_volume_mount_facts is succeeded
@@ -26,8 +28,9 @@
 
 - name: Assigned volume connect available EBS volume
   ec2_vol:
-    device_name: "{{ sansible_persistent_volumes_device.path }}"
-    id: "{{ assigned_volume_ec2_instance_tags.tags[sansible_persistent_volumes_aws.assigned_volume_instance_tag] }}"
+    device_name: "{{ sansible_persistent_volumes_device.ec2_vol_path }}"
+    id: "{{ assigned_volume_ec2_instance_tags.tags[
+      sansible_persistent_volumes_aws.assigned_volume_instance_tag] }}"
     instance: "{{ ansible_ec2_instance_id }}"
     region: "{{ ansible_ec2_placement_region }}"
   when: assigned_volume_mount_facts.volumes[0] is not defined

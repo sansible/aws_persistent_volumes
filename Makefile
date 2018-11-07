@@ -1,4 +1,4 @@
-ANSIBLE_INSTALL_VERSION ?= 2.5.3.0
+ANSIBLE_INSTALL_VERSION ?= 2.6.7
 PATH := $(PWD)/.venv_ansible$(ANSIBLE_INSTALL_VERSION)/bin:$(shell printenv PATH)
 SHELL := env PATH=$(PATH) /bin/bash
 
@@ -35,14 +35,20 @@ destroy:
 		echo -e "\033[0;33mWARNING: molecule not found - either remove potential containers manually or run 'make deps' first\033[0m"; \
 	fi
 
+
 ## Login to docker container named '%'
 login_%: .venv_ansible$(ANSIBLE_INSTALL_VERSION)
 	@echo -e "\033[0;32mINFO: Logging into $(subst login_,,$@) (ctrl-d to exit)\033[0m"
 	@.venv_ansible$(ANSIBLE_INSTALL_VERSION)/bin/molecule login --host $(subst login_,,$@)
 
+
 ## Run 'molecule test --destroy=never' (run 'make destroy' to destroy containers)
 test: .venv_ansible$(ANSIBLE_INSTALL_VERSION)
 	@.venv_ansible$(ANSIBLE_INSTALL_VERSION)/bin/molecule test --destroy=never
+
+
+# shortcut for making virtualenv
+.venv: .venv_ansible$(ANSIBLE_INSTALL_VERSION)
 
 
 ## Create virtualenv, install dependencies
