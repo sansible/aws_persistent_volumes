@@ -6,6 +6,8 @@ sansible_persistent_volumes_ensure_directories: []
 sansible_persistent_volumes_device:
   # The linux device path where the block device is expected to appear.
   path: /dev/xvdb
+  # ec2_vol does not recognise `/dev/nvme1n1` as valid path.
+  ec2_vol_path: /dev/xvdb
   # Filesystem type.
   fs_type: ext4
   # The group id that should be applied on the mount point.
